@@ -147,6 +147,21 @@
   <form id="cadastroForm" novalidate>
 
     <fieldset>
+      <legend>Preenchimento</legend>
+      <div class="grid">
+        <div class="field full">
+          <label for="preenchido_por">Preenchido por <span class="req">*</span></label>
+          <select id="preenchido_por" name="preenchido_por" required>
+            <option value="">Selecione</option>
+            <option>Vendedor</option>
+            <option>Cliente</option>
+          </select>
+          <div class="error-msg"></div>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset>
       <legend>Dados pessoais</legend>
       <div class="grid">
         <div class="field full">
@@ -162,8 +177,8 @@
         </div>
 
         <div class="field">
-          <label for="dia_mes_nascimento">Dia/mês de nascimento <span class="req">*</span></label>
-          <input type="text" id="dia_mes_nascimento" name="dia_mes_nascimento" required placeholder="DD/MM" inputmode="numeric" maxlength="5">
+          <label for="data_nascimento">Data de nascimento <span class="req">*</span></label>
+          <input type="text" id="data_nascimento" name="data_nascimento" required placeholder="DD/MM/AAAA" inputmode="numeric" maxlength="10">
           <div class="error-msg"></div>
         </div>
 
@@ -247,6 +262,12 @@
         </div>
 
         <div class="field">
+          <label for="modelo_veiculo">Modelo do veículo <span class="req">*</span></label>
+          <input type="text" id="modelo_veiculo" name="modelo_veiculo" required placeholder="Ex: Honda Civic 2020">
+          <div class="error-msg"></div>
+        </div>
+
+        <div class="field">
           <label for="kit">Kit <span class="req">*</span></label>
           <select id="kit" name="kit" required>
             <option value="">Selecione</option>
@@ -265,6 +286,12 @@
           <input type="text" id="tipo_pelicula" name="tipo_pelicula" required placeholder="Ex: G20, Fumê, Cerâmica...">
           <div class="hint">Digite o tipo de película</div>
           <div class="error-msg"></div>
+        </div>
+
+        <div class="field full">
+          <label for="acessorios">Acessórios adicionais</label>
+          <input type="text" id="acessorios" name="acessorios" placeholder="Ex: palhetas">
+          <div class="hint">Opcional — venda adicional de acessórios</div>
         </div>
       </div>
     </fieldset>
@@ -312,15 +339,17 @@
     return v.replace(/(\d{5})(\d{1,3})/, '$1-$2');
   }
 
-  function maskDiaMes(v) {
-    v = onlyDigits(v).slice(0, 4);
-    return v.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+  function maskDataNascimento(v) {
+    v = onlyDigits(v).slice(0, 8);
+    v = v.replace(/(\d{2})(\d)/, '$1/$2');
+    v = v.replace(/(\d{2})\/(\d{2})(\d)/, '$1/$2/$3');
+    return v;
   }
 
   document.getElementById('cpf').addEventListener('input', e => e.target.value = maskCPF(e.target.value));
   document.getElementById('telefone').addEventListener('input', e => e.target.value = maskTelefone(e.target.value));
   document.getElementById('cep').addEventListener('input', e => e.target.value = maskCEP(e.target.value));
-  document.getElementById('dia_mes_nascimento').addEventListener('input', e => e.target.value = maskDiaMes(e.target.value));
+  document.getElementById('data_nascimento').addEventListener('input', e => e.target.value = maskDataNascimento(e.target.value));
   document.getElementById('placa').addEventListener('input', e => e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 7));
 
   // ---- validações ----
@@ -339,13 +368,16 @@
     return rest === parseInt(cpf.substring(10, 11));
   }
 
-  function isValidDiaMes(v) {
-    const m = v.match(/^(\d{2})\/(\d{2})$/);
+  function isValidDataNascimento(v) {
+    const m = v.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
     if (!m) return false;
-    const dia = parseInt(m[1]), mes = parseInt(m[2]);
+    const dia = parseInt(m[1]), mes = parseInt(m[2]), ano = parseInt(m[3]);
     if (mes < 1 || mes > 12) return false;
-    const diasNoMes = [31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
-    return dia >= 1 && dia <= diasNoMes[mes - 1];
+    const bissexto = (ano % 4 === 0 && ano % 100 !== 0) || (ano % 400 === 0);
+    const diasNoMes = [31, bissexto ? 29 : 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    if (dia < 1 || dia > diasNoMes[mes - 1]) return false;
+    const anoAtual = new Date().getFullYear();
+    return ano >= 1900 && ano <= anoAtual;
   }
 
   // ---- autocompletar endereço via CEP ----
@@ -391,9 +423,9 @@
       valid = false;
     }
 
-    const dataField = document.getElementById('dia_mes_nascimento');
-    if (dataField.value.trim() && !isValidDiaMes(dataField.value)) {
-      setFieldError(dataField, 'Use o formato DD/MM');
+    const dataField = document.getElementById('data_nascimento');
+    if (dataField.value.trim() && !isValidDataNascimento(dataField.value)) {
+      setFieldError(dataField, 'Use o formato DD/MM/AAAA');
       valid = false;
     }
 
