@@ -388,84 +388,78 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <script>
 
-// ── DADOS (extraídos de "Premium_fime - Filme.csv") ───────────────
-// Cada linha do CSV virou um objeto. Valores vazios/"Invalid Date" no CSV
-// viram '' aqui; o parser abaixo trata essas ausências.
-const RAW_ROWS = [
-  ['Fernando','558596407598','Não cadastrado','Rede Social','Automotivo','','','','',''],
-  ['Fernando','558596407598','Não cadastrado','Rede Social','Automotivo','','','','',''],
-  ['Reis Álvaro','Não cadastrado','Não cadastrado','','','0','30/06/2026','','',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','','','','',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','','','','','',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','','','','',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','','','','',''],
-  ['Socorro','558587679421','Não cadastrado','Rede Social','','','','','',''],
-  ['Socorro','558587679421','Não cadastrado','Rede Social','','10','','','Rede Social',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','5000','29/06/2026','01/06/2026','Já sou cliente',''],
-  ['Amarildo','558599520331','Não cadastrado','','','0','30/06/2026','','',''],
-  ['Mariana Amâncio','558596606837','Não cadastrado','Rede Social','','0','30/06/2026','','Rede Social',''],
-  ['Cirlane','558599041275','Não cadastrado','Rede Social','Automotivo','0','30/06/2026','','Rede Social',''],
-  ['Renie Sales','558598228191','Não cadastrado','Indicação','Automotivo','0','30/06/2026','','Indicação',''],
-  ['Luca Schiavi','558592295151','Não cadastrado','Rede Social','Automotivo','0','30/06/2026','30/06/2026','Rede Social',''],
-  ['Matheus moraes','559883232415','Não cadastrado','Indicação','','850','17/07/2026','17/07/2026','Indicação',''],
-  ['Jd Revestimentos Especiais','558596959124','Não cadastrado','Indicação','Automotivo','2900','','14/07/2026','Indicação',''],
-  ['Thiago Moreira','558591465292','Não cadastrado','','Automotivo','0','23/07/2026','22/07/2026','',''],
-  ['Allef Barros','558881536471','Não cadastrado','Rede Social','Automotivo','0','23/07/2026','06/07/2026','Rede Social',''],
-  ['Caio Maciel','558588451983','Não cadastrado','Rede Social','','0','23/07/2026','20/07/2026','Rede Social',''],
-  ['Damario','558589330088','Não cadastrado','Rede Social','Automotivo','0','','11/07/2026','Rede Social',''],
-  ['J.B','558597001262','Não cadastrado','Rede Social','Automotivo','0','','30/07/2026','Rede Social',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','5000','14/09/2026','01/06/2026','Já sou cliente',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','5000','14/09/2026','01/06/2026','Já sou cliente',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','5000','14/09/2026','01/06/2026','Já sou cliente',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','5000','14/09/2026','01/06/2026','Já sou cliente',''],
-  ['Emanuel Patricio','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','1000','14/09/2026','01/06/2026','Já sou cliente',''],
-  ['Emanuel Patricio - Teste','558596407598','ecobusinessoficial14@gmail.com','Já sou cliente','Comercial','1000','14/09/2026','01/06/2026','Já sou cliente',''],
-  ['Yuri Marques','558581786895','Não cadastrado','Rede Social','Automotivo','697','','10/09/2026','Rede Social',''],
-  ['Valtenir Cássio','558698039571','Não cadastrado','Rede Social','','850','','10/09/2026','Rede Social',''],
-  ['George Soares','558581576810','Não cadastrado','Rede Social','','800','','08/09/2026','Rede Social',''],
-  ['Dorynha','558597033005','Não cadastrado','Google','Automotivo','397','','15/09/2026','Google',''],
-  ['Wes.','558588931445','Não cadastrado','Google','Automotivo','250','','14/09/2026','Google',''],
-  ['Inácio Friopeças','558597283507','Não cadastrado','Google','Automotivo','650','','04/09/2026','Google',''],
-  ['Magna Mayara','558581816030','Não cadastrado','Indicação','','452','','','Indicação',''],
-  ['Vitorr','558587797043','Não cadastrado','Google','','650','','29/08/2026','Google',''],
-  ['Rocha','558594528713','Não cadastrado','Google','Automotivo','650','','02/09/2026','Google',''],
-  ['Rocha','558597052149','Cleylsoncr@gmail.com','Rede Social','Automotivo','897','17/09/2026','01/09/2026','Rede Social',''],
-  ['kevimartins','558592688165','kevinaraujomartins2121@gmail.com','Não indentificado','','350','17/09/2026','16/09/2026','Não indentificado',''],
-];
+// ── DADOS (direto da planilha Google, ao vivo) ────────────────────
+// Mesma planilha que o formulário/n8n já alimenta. Lida pelo endpoint gviz
+// (sem credencial — a aba precisa estar compartilhada "qualquer pessoa com
+// o link pode ver"), direto do navegador, a cada carregamento/"Recarregar".
+const SHEET_ID = '11z1DJ4LdBf5tALN11m5NQ2NzG_vGczIq0B9DJga34VM';
+const SHEET_GID = '0';
 
 const MESES_PT_FULL = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
 
-function parseDataBR(s) {
-  if(!s) return null;
-  const m = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(s.trim());
+function parseGvizDate(cell) {
+  // Célula de data do gviz vem como {v: "Date(2026,5,30)"} (mês 0-indexado) ou null/vazia.
+  if(!cell || cell.v == null) return null;
+  const m = /^Date\((\d+),(\d+),(\d+)\)$/.exec(String(cell.v));
   if(!m) return null;
-  const d = new Date(parseInt(m[3]), parseInt(m[2])-1, parseInt(m[1]));
+  const d = new Date(parseInt(m[1]), parseInt(m[2]), parseInt(m[3]));
   return isNaN(d.getTime()) ? null : d;
 }
+function cellStr(cell) {
+  if(!cell || cell.v == null) return '';
+  return String(cell.f || cell.v).trim();
+}
+function cellNum(cell) {
+  if(!cell || cell.v == null) return 0;
+  const n = Number(cell.v);
+  return Number.isFinite(n) ? n : 0;
+}
 
-const DATA = RAW_ROWS.map(r => {
-  const [nome, tel, email, canal, produto, valorStr, dataVendaStr, dataEntradaStr, anuncio, tipoPelicula] = r;
-  const dataVenda = parseDataBR(dataVendaStr);
-  const dataEntrada = parseDataBR(dataEntradaStr);
-  const dataRef = dataVenda || dataEntrada || null;
-  const valor = parseFloat(String(valorStr).replace(',','.')) || 0;
-  return {
-    nome: nome.trim(),
-    tel: tel === 'Não cadastrado' ? '' : tel,
-    email: email === 'Não cadastrado' ? '' : email,
-    canal: canal.trim() || 'Não informado',
-    produto: produto.trim() || 'Não informado',
-    tipoPelicula: tipoPelicula.trim() || 'Não informado',
-    anuncio: anuncio.trim() || 'Não informado',
-    valor,
-    fechado: valor > 0,
-    dataVenda, dataEntrada, dataRef,
-    mesKey: dataRef ? `${dataRef.getFullYear()}-${String(dataRef.getMonth()+1).padStart(2,'0')}` : 'SEM_DATA',
-  };
-});
+function parseLinhasPlanilha(json) {
+  const linhas = (json.table && json.table.rows) || [];
+  return linhas.map(linha => {
+    const c = linha.c || [];
+    const nome = cellStr(c[0]);
+    if(!nome) return null;
+    const tel = cellStr(c[1]);
+    const email = cellStr(c[2]);
+    const dataVenda = parseGvizDate(c[6]);
+    const dataEntrada = parseGvizDate(c[7]);
+    const dataRef = dataVenda || dataEntrada || null;
+    const valor = cellNum(c[5]);
+    return {
+      nome,
+      tel: tel === 'Não cadastrado' ? '' : tel,
+      email: email === 'Não cadastrado' ? '' : email,
+      canal: cellStr(c[3]) || 'Não informado',
+      produto: cellStr(c[4]) || 'Não informado',
+      tipoPelicula: cellStr(c[9]) || 'Não informado',
+      anuncio: cellStr(c[8]) || 'Não informado',
+      valor,
+      fechado: valor > 0,
+      dataVenda, dataEntrada, dataRef,
+      mesKey: dataRef ? `${dataRef.getFullYear()}-${String(dataRef.getMonth()+1).padStart(2,'0')}` : 'SEM_DATA',
+    };
+  }).filter(Boolean);
+}
+
+async function buscarPlanilha() {
+  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&gid=${SHEET_GID}`;
+  const res = await fetch(url);
+  if(!res.ok) throw new Error('planilha respondeu ' + res.status);
+  const texto = await res.text();
+  const match = /\{.*\}/s.exec(texto);
+  if(!match) throw new Error('resposta da planilha não veio no formato esperado');
+  const json = JSON.parse(match[0]);
+  if(json.status === 'error') throw new Error('planilha recusou a consulta');
+  return parseLinhasPlanilha(json);
+}
+
+let DATA = [];
+let MESES_DISPONIVEIS = [];
 
 // Meses realmente presentes nos dados (ordenados cronologicamente, com "Sem data" por último)
-const MESES_DISPONIVEIS = (() => {
+function computeMesesDisponiveis() {
   const set = new Set(DATA.map(r => r.mesKey));
   const comData = Array.from(set).filter(k => k !== 'SEM_DATA').sort();
   const lista = comData.map(k => {
@@ -473,8 +467,8 @@ const MESES_DISPONIVEIS = (() => {
     return { key: k, label: `${MESES_PT_FULL[parseInt(m)-1]}/${y}` };
   });
   if(set.has('SEM_DATA')) lista.push({ key: 'SEM_DATA', label: 'Sem data' });
-  return lista;
-})();
+  MESES_DISPONIVEIS = lista;
+}
 
 // Meta por mês (editável, persiste no navegador)
 const META_PADRAO = 10000;
@@ -524,7 +518,7 @@ function renderSemAnimarEntrada(fn) {
 }
 
 // ── FILTROS ──────────────────────────────────────────────────────
-let MESES_SELECIONADOS = MESES_DISPONIVEIS.map(m => m.key); // começa com tudo selecionado
+let MESES_SELECIONADOS = []; // preenchido depois do primeiro carregamento da planilha
 
 function getStatus() { return document.getElementById('selStatus').value; }
 
@@ -619,11 +613,35 @@ function goPage(id, el) {
   renderPage(id);
 }
 
-function loadAll() {
+let PRIMEIRA_CARGA = true;
+async function loadAll() {
   const btn = document.getElementById('btn-refresh');
   btn.classList.add('spinning');
-  document.getElementById('last-sync').textContent = 'Base: ' + DATA.length + ' registros · ' + new Date().toLocaleTimeString('pt-BR');
-  setTimeout(() => btn.classList.remove('spinning'), 400);
+  try {
+    DATA = await buscarPlanilha();
+    computeMesesDisponiveis();
+    const chavesValidas = new Set(MESES_DISPONIVEIS.map(m => m.key));
+    if(PRIMEIRA_CARGA) {
+      MESES_SELECIONADOS = MESES_DISPONIVEIS.map(m => m.key);
+      PRIMEIRA_CARGA = false;
+    } else {
+      MESES_SELECIONADOS = MESES_SELECIONADOS.filter(k => chavesValidas.has(k));
+    }
+    renderMesDropdownList();
+    document.getElementById('mesDropdownLabel').textContent = labelMeses();
+    document.getElementById('last-sync').textContent = 'Planilha: ' + DATA.length + ' registros · ' + new Date().toLocaleTimeString('pt-BR');
+  } catch(e) {
+    console.error('Falha ao carregar a planilha:', e);
+    document.getElementById('last-sync').textContent = 'Erro ao carregar a planilha (' + new Date().toLocaleTimeString('pt-BR') + ')';
+    if(!DATA.length) {
+      document.querySelectorAll('.page').forEach(p => {
+        p.innerHTML = emptyHTML('⚠️','Não foi possível carregar a planilha', e.message || 'Verifique sua conexão e tente "Recarregar".');
+      });
+      btn.classList.remove('spinning');
+      return;
+    }
+  }
+  btn.classList.remove('spinning');
   renderAll();
 }
 
@@ -1190,8 +1208,9 @@ function emptyHTML(icon, title, sub) {
 }
 
 // ── INIT ─────────────────────────────────────────────────────────
-renderMesDropdownList();
-document.getElementById('mesDropdownLabel').textContent = labelMeses();
+document.querySelectorAll('.page').forEach(p => {
+  p.innerHTML = '<div class="loading"><div class="spinner"></div><div class="loading-txt">Carregando planilha...</div></div>';
+});
 loadAll();
 </script>
 </body>
